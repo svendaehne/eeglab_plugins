@@ -1,1 +1,3 @@
-# EEGLAB plugins for SPoC and other spatial filtering algorithms
+# EEGLAB plugins 
+
+Plugings for SPoC and other spatial filtering algorithms
