@@ -1,0 +1,8 @@
+files={'VPhbn','VPis','VPjak','VPlg','VPlh','VPnah','VPnaj'};
+sub1 = load(['/home/hidai2/eeglab/plugins/AD/unplugged/',files{1},'_SSAEP_data_epoched.mat']);
+for i=1:2
+    subi = load(['/home/hidai2/eeglab/plugins/AD/unplugged/',files{i},'_SSAEP_data_epoched.mat']);
+    [~,shuffle_idx] = match_ranks(sub1.data.z,subi.data.z);
+    x = subi.data.x(:,:,shuffle_idx);
+    save(['/home/hidai2/eeglab/plugins/AD/unplugged/',files{i},'.mat'],'x');    
+end
