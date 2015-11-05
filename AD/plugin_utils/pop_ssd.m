@@ -57,9 +57,13 @@ if nargin < 4
         { 'style' 'text' 'string' 'Noise bandstop band ([min max] in Hz):' } ...
         { 'style' 'edit' 'string'  res{3} } ...
         { 'style' 'text' 'string' 'filter order (integer scalar):' } ...
-        { 'style' 'edit' 'string'  res{4} } };
+        { 'style' 'edit' 'string'  res{4} } ...
+        { 'Style', 'checkbox', 'value', 0, 'string', ...
+        'Automatic dimention reduction'} ...
+        { 'Style', 'checkbox', 'value', 0, 'string', ...
+        'Run on all datasets'} };
 
-    uigeom = { [3 1] [3 1] [3 1] [3 1] };
+    uigeom = { [3 1] [3 1] [3 1] [3 1] [1] [1] };
     if ismatrix(EEG.data) % in case of continuous data - ask whether to generate epoch_indices
        cbevent = ['if ~isfield(EEG.event, ''type'')' ...
 				   '   errordlg2(''No type field'');' ...
@@ -78,10 +82,10 @@ if nargin < 4
         epogeom = { 1 , 1 , [2 1 0.5] [2 1 0.5]};
         epolist = { { } {'style', 'checkbox', 'string', 'Use events to choose relevant data', 'value', res{5}} ...
               { 'style' 'text'       'string' 'Time-locking event type(s) ([]=all)' } ...
-              { 'style' 'edit'       'string' res{6} 'tag' 'events' } ...
+              { 'style' 'edit'       'string' res{8} 'tag' 'events' } ...
               { 'style' 'pushbutton' 'string' '...' 'callback' cbevent } ...
               { 'style' 'text'       'string' 'Epoch limits [start, end] in seconds' } ...
-              { 'style' 'edit'       'string' res{7} } { } };
+              { 'style' 'edit'       'string' res{9} } { } };
         uilist = [ uilist , epolist];
         uigeom = [ uigeom , epogeom];
     end
@@ -92,20 +96,31 @@ end
     noise_bp_band = str2num(res{2}); % noise bandpass band
     noise_bs_band = str2num(res{3}); % noise bandstop band
     filter_order = str2num(res{4}); % filter order
+    auto_dim_redu = res{5}; % automated dimention reduction (yes/no)
+    run_on_all = res{6}; % run on all datasets (yes/no)
     
- if ismatrix(EEG.data) && res{5}
+ if ismatrix(EEG.data) && res{7}
      
 % following code is based on pop_epoch()
-    if ~isempty(res{6})
-       if strcmpi(res{6}(1),'''')   % If event type appears to be in single-quotes, use comma
+    if ~isempty(res{8})
+       if strcmpi(res{8}(1),'''')   % If event type appears to be in single-quotes, use comma
                                        % and single-quote as delimiter between event types. toby 2.24.2006
                                        % fixed Arnaud May 2006
-                    events = eval( [ '{' res{6} '}' ] );
-       else    events = parsetxt( res{6});
+                    events = eval( [ '{' res{8} '}' ] );
+       else    events = parsetxt( res{8});
        end;
     else events = {};
     end
-   lim = eval( [ '[' res{7} ']' ] );
+   lim = eval( [ '[' res{9} ']' ] );
+
+if run_on_all
+   res{6} = 0;
+   com =  sprintf('EEG = pop_ssd(%s,%s);', inputname(1), vararg2str(res));
+   for i=1:length(ALLEEG)
+       ALLEEG{i} = pop_ssd(ALLEEG{i},res{1},res{2},res{3},res{4},res{5},res{6});
+   end
+   return
+end
    
 tmpevent = EEG.event;
 tmpeventlatency = [ tmpevent(:).latency ];
@@ -207,10 +222,19 @@ EEG.icaweights = W';
 EEG.icasphere = eye(EEG.nbchan);
 EEG.icachansind = 1:EEG.nbchan;
 EEG.AD_type = 'SSD';
+
+%com='';
+if auto_dim_redu
+    %[EEG, com] = pop_subcomp(EEG);
+    EEG = pop_subcomp(EEG,16:size(EEG.icaweights,1));
+    EEG.setname = [EEG.setname(1:end-3) 'SSD'];
+end
+
 warndlg2('Successful SSD !','');
-     
+
 % return the string command
 % -------------------------
-com =  sprintf('EEG = pop_ssd(%s,%s);', inputname(1), vararg2str(res));
+
+
 
 return;

@@ -32,6 +32,12 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
         error('eegplugin_AD requires 3 arguments');
     end;
     
+    % add folder to path
+    % -----------------------
+    p = which('eegplugin_AD');
+    p = p(1:findstr(p,'eegplugin_AD.m')-1);
+    addpath(genpath(p));
+    
     % find tools menu
     % ---------------
     toolsmenu = findobj(fig, 'tag', 'tools'); 

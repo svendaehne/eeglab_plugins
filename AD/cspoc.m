@@ -392,5 +392,3 @@ for k=1:length(n_dims)
     stop = start + n_dims(k) - 1;
     w_cell{k} = w_vec(start:stop);
 end
-
-

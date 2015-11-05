@@ -90,8 +90,8 @@ end
 % EEG.dipfit.model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
 for i=1:l
     ALLEEG(i).icaweights = W{i}';
-    ALLEEG(i).icasphere = eye(EEG.nbchan);
-    ALLEEG(i).icachansind = 1:EEG.nbchan;
+    ALLEEG(i).icasphere = eye(ALLEEG(i).nbchan);
+    ALLEEG(i).icachansind = 1:ALLEEG(i).nbchan;
     ALLEEG(i).AD_type = 'cSPoC';
 end
 
