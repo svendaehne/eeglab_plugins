@@ -8,7 +8,7 @@
 %   trystrs    - [struct] "try" strings for menu callbacks.
 %   catchstrs  - [struct] "catch" strings for menu callbacks.
 %
-% Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
+% Copyright (C) 2014 Idai Guertel. Adapted from: Arnaud Delorme, Scott
 % Makeig.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -34,9 +34,13 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
     
     % add folder to path
     % -----------------------
-    p = which('eegplugin_AD');
-    p = p(1:findstr(p,'eegplugin_AD.m')-1);
-    addpath(genpath(p));
+    if ~exist('pop_spoc')
+        p = which('eegplugin_AD');
+        p = p(1:findstr(p,'eegplugin_AD.m')-1);
+        addpath(p);
+        addpath([p '/plugin_utils');
+        addpath([p '/utils']);
+    end
     
     % find tools menu
     % ---------------
@@ -65,9 +69,9 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
 %         'EEG.AD_lambda = tempEEG.dipfit.model; ' ...
 %         'EEG.setname = [ tempEEG.setname(1:(numel(tempEEG.setname)-3)) tempEEG.AD_type]; '];
 
-    cmd_ssd = [trystrs.no_check '[ALLEEG EEG LASTCOM] = pop_ssd( ALLEEG, EEG, CURRENTSET); '  catchstrs.add_to_hist]; % calls ssd
+    cmd_ssd = [trystrs.no_check '[EEG LASTCOM] = pop_ssd( EEG); '  catchstrs.store_and_hist]; % calls ssd
     cmd_spoc = [trystrs.no_check '[EEG LASTCOM] = pop_spoc( EEG); ' catchstrs.store_and_hist]; % calls spoc
-    cmd_cspoc = [trystrs.no_check '[ALLEEG EEG LASTCOM] = pop_cspoc( ALLEEG, EEG, CURRENTSET); ' catchstrs.add_to_hist]; % calls cspoc
+    cmd_cspoc = [trystrs.no_check '[ALLEEG LASTCOM] = pop_cspoc( ALLEEG); ' catchstrs.store_and_hist]; % calls cspoc
     
 %     cmd_subcomp = [trystrs.no_check cmd_check_AD cmd_over_ica '[tempEEG LASTCOM] = pop_subcomp( tempEEG); ' cmd_back catchstrs.new_and_hist];
 

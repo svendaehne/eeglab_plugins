@@ -2,7 +2,7 @@
 %         than 2, pop up an interactive query window. Calls cspoc().
 %
 % Usage:
-%   >>  OUTALLEEG = pop_cspoc( INALLEEG );
+%   >>  [OUTALLEEG, OUTEEG] = pop_cspoc( INALLEEG , EEG, CURRENTSET);
 %
 % Inputs:
 %   INALLEEG   - input ALLEEG datasets
@@ -29,16 +29,18 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [ALLEEG, com] = pop_cspoc( ALLEEG , varargin)
+function [ALLEEG, EEG, com] = pop_cspoc( ALLEEG , EEG, CURRENTSET, varargin)
 
 com = '';
 
 % display help if not enough arguments
 % ------------------------------------
-if nargin < 1
+if nargin < 3
     help cspoc;
     return;
 end;
+
+res = {'1'}; % default values
 
 for i=1:length(varargin)
     res{i} = varargin{i};
@@ -46,7 +48,7 @@ end
 
 % popup window parameters
 % -----------------------
-if nargin < 2
+if nargin < 4
 
     uilist = { { 'Style', 'text', 'string', 'envelope correlations' }, ...
          { 'Style', 'listbox', 'string', 'Maximize|Minimize' } };
@@ -57,13 +59,14 @@ if nargin < 2
     res{1} = 3-2*res{1}; %transformation: (1,2) -> (1,-1)
 end
 
-% adjust data to cspoc expectation
+% adjust data to cspoc expected format
 l=length(ALLEEG);
 for i=1:l
     X{i} = permute(ALLEEG(i).data,[2,1,3]); % (nbchan,pnts,trials) --> (pnts,nbchan,trials)
 end
 
-[W, A, r_values, all_r_values] = cspoc(X, res{1}, varargin);
+[W, A, r_values, all_r_values] = cspoc(X, res{1});
+
 % l = length(lambda);
 % % calculating and saving results
 % % ------------------------------
@@ -89,16 +92,20 @@ end
 % end
 % EEG.dipfit.model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
 for i=1:l
-    ALLEEG(i).icaweights = W{i}';
-    ALLEEG(i).icasphere = eye(ALLEEG(i).nbchan);
-    ALLEEG(i).icachansind = 1:ALLEEG(i).nbchan;
-    ALLEEG(i).AD_type = 'cSPoC';
+    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',i);
+    EEG.icaweights = W{i}';
+    EEG.icawinv = A{i};
+    EEG.icasphere = eye(EEG.nbchan);
+    EEG.icachansind = 1:EEG.nbchan;
+    EEG.AD_type = 'cSPoC';
+    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);    
 end
 
 warndlg2('Successful cSPoC !','');
      
 % return the string command
 % -------------------------
-com =  sprintf('ALLEEG = pop_cspoc(%s,%s);', inputname(1), vararg2str(res));
+
+com =  sprintf('[ALLEEG, EEG] = pop_cspoc(%s,%s,%s,%s);', inputname(1),inputname(2),inputname(3), vararg2str(res));
 
 return;
