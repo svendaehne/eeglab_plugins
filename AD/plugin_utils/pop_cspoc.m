@@ -40,7 +40,7 @@ if nargin < 3
     return;
 end;
 
-res = {'1'}; % default values
+res = {'1','1',0,0,'10','200','1',0}; % default values
 
 for i=1:length(varargin)
     res{i} = varargin{i};
@@ -51,9 +51,20 @@ end
 if nargin < 4
 
     uilist = { { 'Style', 'text', 'string', 'envelope correlations' }, ...
-         { 'Style', 'listbox', 'string', 'Maximize|Minimize' } };
+         { 'Style', 'listbox', 'string', 'Maximize|Minimize' } ...
+         { 'style' 'text' 'string' 'Number of components sets to be extracted:' } ...
+         { 'style' 'edit' 'string'  res{2} } ...
+         { 'Style', 'checkbox', 'value', res{3}, 'string', 'use log'} ...
+         { 'Style', 'checkbox', 'value', res{4}, 'string', 'average over epochs'} ...
+         { 'style' 'text' 'string' 'number of re-starts per component pair:' } ...
+         { 'style' 'edit' 'string'  res{5} } ...
+         { 'style' 'text' 'string' 'maximum number of optimizer iterations:' } ...
+         { 'style' 'edit' 'string'  res{6} } ...
+         { 'style' 'text' 'string' 'verbose:' } ...
+         { 'style' 'edit' 'string'  res{7} } ...
+         { 'Style', 'checkbox', 'value', res{8}, 'string', 'save r_values to file'} };
 
-    uigeom = { [1 1] };
+    uigeom = { [3 1] [3 1] [] [1] [1] [] [3 1] [3 1] [3 1] [] [1] };
 
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'cSPoC - pop_cspoc()', 'helpcom', 'pophelp(''pop_cspoc'');');
     res{1} = 3-2*res{1}; %transformation: (1,2) -> (1,-1)
@@ -65,32 +76,10 @@ for i=1:l
     X{i} = permute(ALLEEG(i).data,[2,1,3]); % (nbchan,pnts,trials) --> (pnts,nbchan,trials)
 end
 
-[W, A, r_values, all_r_values] = cspoc(X, res{1});
+[W, A, r_values, all_r_values] = cspoc(X, res{1},'n_component_sets',str2num(res{2})...
+    ,'use_log', res{3},'average_over_epochs',res{4}, 'n_repeats',str2num(res{5})...
+    ,'maxIter',str2num(res{6}),'verbose',str2num(res{7}));
 
-% l = length(lambda);
-% % calculating and saving results
-% % ------------------------------
-% X = permute(X,[2,1,3]); % (pnts,nbchan,trials) --> (nbchan,pnts,trials)
-% sz = size(X); % 1=chan,2=pnts,3=trials
-% X = X(:,:)'; % (nbchan,pnts,trials) --> (nbchan,pnts*trials) --> (pnts*trials,nbchan)
-% X = X*W;
-% X = reshape(X,[sz(2),sz(3),l]); %(pnts*trials,nbchan) --> (pnts,trials,nchan)
-% X_var = zeros(sz(3),l);
-% if (l*sz(2)*sz(3))<=10^6;
-%   X_var = squeeze(var(X));
-% else
-%   for i=1:sz(3)
-%     X_var(i,:) = squeeze(var(X(:,i,:)));
-%   end
-% end
-% X_var = (log(X_var));
-% if ~isfield(EEG,'dipfit') || ~isstruct(EEG.dipfit)
-%     EEG.dipfit = struct;
-% end
-% if isfield(EEG.dipfit,'model')
-%     EEG.dipfit = rmfield(EEG.dipfit,'model');
-% end
-% EEG.dipfit.model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
 for i=1:l
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',i);
     EEG.icaweights = W{i}';
@@ -102,7 +91,13 @@ for i=1:l
 end
 
 warndlg2('Successful cSPoC !','');
-     
+
+% save the r values in .mat file
+if res{8}
+    [curfilename, curfilepath] = uiputfile('r_values.mat', 'Save the EEGLAB session command history with .m extension -- pop_saveh()'); 
+    save([ curfilepath '/' curfilename ],'r_values','all_r_values');
+end
+
 % return the string command
 % -------------------------
 
