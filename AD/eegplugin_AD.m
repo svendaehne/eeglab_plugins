@@ -46,12 +46,15 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
     % menu callback commands
     % ---------------------
    
-    cmd_check_AD = ['if(~isfield(EEG,''AD_type'')|isempty(EEG.AD_type)) ' ...
-        'errordlg2(sprintf(''Error: no advanced decomposition has beed performed.\n\nUse "Tools > Advanced Decompositions > Run" first.''), ''Error''); '...
+    cmd_check_AD = ['if(~isfield(EEG,''AD_type'')|isempty(EEG.AD_type)|((~strcmp(EEG.AD_type,''SPoC''))&(~strcmp(EEG.AD_type,''SSD'')))) ' ...
+        'errordlg2(sprintf(''Error: no SSD/SPoC decomposition has beed performed.\n\nUse "Tools > Advanced Decompositions > Run" first.''), ''Error''); '...
         'return; end; ']; % makes sure that an 'Advanced decomposition' exists.
     cmd_check_SPoC = ['if(~isfield(EEG,''AD_type'')|~strcmp(EEG.AD_type,''SPoC'')) ' ...
         'errordlg2(sprintf(''Error: no SPoC decomposition has beed performed.\n\nUse "Tools > Advanced Decompositions > Run SPoC" first.''), ''Error''); '...
-        'return; end; ']; % makes sure that an 'Advanced decomposition' exists.
+        'return; end; ']; % makes sure that SPoC decomposition has beed performed.
+    cmd_check_cSPoC = ['if(~isfield(EEG,''AD_type'')|~strcmp(EEG.AD_type,''cSPoC'')) ' ...
+        'errordlg2(sprintf(''Error: no cSPoC decomposition has beed performed.\n\nUse "Tools > Advanced Decompositions > Run cSPoC" first.''), ''Error''); '...
+        'return; end; ']; % makes sure that cSPoC decomposition has beed performed.
 %     cmd_over_ica = ['tempEEG = EEG; ' ...
 %         'tempEEG.icaact = [];' ...
 %         'tempEEG.icawinv = EEG.AD_A; ' ...
@@ -72,7 +75,8 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
 %     cmd_subcomp = [trystrs.no_check cmd_check_AD cmd_over_ica '[tempEEG LASTCOM] = pop_subcomp( tempEEG); ' cmd_back catchstrs.new_and_hist];
 
     cmd_lambda = [trystrs.no_check cmd_check_AD 'LASTCOM = AD_plot_lambda(EEG); ' catchstrs.add_to_hist]; % calls the lambda plotting function.
-    cmd_result = [trystrs.no_check cmd_check_SPoC 'LASTCOM = SPoC_plot_result(EEG); ' catchstrs.add_to_hist]; % calls the lambda plotting function.
+    cmd_spoc_result = [trystrs.no_check cmd_check_SPoC 'LASTCOM = SPoC_plot_result(EEG); ' catchstrs.add_to_hist]; % calls the lambda plotting function.
+    cmd_cspoc_result = [trystrs.no_check cmd_check_cSPoC 'LASTCOM = cSPoC_plot_result(ALLEEG); ' catchstrs.add_to_hist]; % calls the lambda plotting function.
     
 %     cmd_maps = [trystrs.check_chanlocs cmd_check_AD cmd_over_ica 'LASTCOM = pop_topoplot( tempEEG, 0); ' 'clearvars tempEEG; ' catchstrs.add_to_hist];
 %     cmd_activation = [trystrs.no_check cmd_check_AD cmd_over_ica 'LASTCOM = pop_eegplot( tempEEG, 0, 1, 1); ' 'clearvars tempEEG; ' catchstrs.add_to_hist];
@@ -92,7 +96,8 @@ function vers = eegplugin_AD(fig, trystrs, catchstrs)
 %     uimenu( toolssubmenu, 'label', 'Remove somponents', 'callback', cmd_subcomp);
 
     uimenu( plotsubmenu, 'label', 'Lambda spectrum', 'callback', cmd_lambda); %, 'userdata', 'chanloc:on'
-    uimenu( plotsubmenu, 'label', 'SPoC results', 'callback', cmd_result);
+    uimenu( plotsubmenu, 'label', 'SPoC results', 'callback', cmd_spoc_result);
+    uimenu( plotsubmenu, 'label', 'cSPoC results', 'callback', cmd_cspoc_result);
 %     uimenu( plotsubmenu, 'label', 'Component maps', 'callback', cmd_maps); %, 'userdata', 'chanloc:on'
 %     uimenu( plotsubmenu, 'label', 'Component activation (scroll)', 'callback', cmd_activation);
 %     uimenu( plotsubmenu, 'label', 'Component spectra and maps', 'callback', cmd_spectra);

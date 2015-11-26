@@ -144,38 +144,6 @@ varlist = who(matObj);
 z = matObj.(varlist{1});
 z = z(:)';
 
-% Store and then remove current EEG weights and sphere
-% ----------------------------------------------------
-% following code based on pop_runica()
-
-fprintf('\n');
-if ~isempty(EEG.icaweights)
-    fprintf('Saving current decomposition in "EEG.etc.oldweights" (etc.).\n');
-    if(~isfield(EEG,'AD_type')||isempty(EEG.AD_type))
-        EEG.AD_type = 'ICA';
-    end
-    if ~isfield(EEG,'etc'), EEG.etc = []; end;
-    if ~isfield(EEG.etc,'oldweights')
-        EEG.etc.oldweights = {};
-        EEG.etc.oldsphere = {};
-        EEG.etc.oldchansind = {};
-        EEG.etc.oldtype = {};
-    end;
-    tmpoldweights  = EEG.etc.oldweights;
-    tmpoldsphere   = EEG.etc.oldsphere;
-    tmpoldchansind = EEG.etc.oldchansind;
-    tmpoldtype     = EEG.etc.oldtype;
-    EEG.etc.oldweights = { EEG.icaweights    tmpoldweights{:} };
-    EEG.etc.oldsphere  = { EEG.icasphere     tmpoldsphere{:}  };
-    EEG.etc.oldchansind  = { EEG.icachansind tmpoldchansind{:}  };
-    EEG.etc.oldtype = {EEG.AD_type tmpoldtype{:}    };
-    fprintf('               Decomposition saved as entry %d.\n',length(EEG.etc.oldweights));
-end
-EEG.icaweights = [];
-EEG.icasphere  = [];
-EEG.icawinv    = [];
-EEG.icaact     = [];
-
 % call spoc function
 % ------------------
 [W, EEG.icawinv, lambda, p_value, ~, ~, ~] = spoc(X, z,'n_bootstrapping_iterations',n_bootstrapping_iterations);
@@ -196,17 +164,10 @@ else
   end
 end
 X_var = (log(X_var));
-if ~isfield(EEG,'dipfit') || ~isstruct(EEG.dipfit)
-    EEG.dipfit = struct;
-end
-if isfield(EEG.dipfit,'model')
-    EEG.dipfit = rmfield(EEG.dipfit,'model');
-end
-EEG.dipfit.model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
-EEG.icaweights = W';
-EEG.icasphere = eye(EEG.nbchan);
-EEG.icachansind = 1:EEG.nbchan;
-EEG.AD_type = 'SPoC';
+
+model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
+EEG = AD_store_new_weights( EEG , W', eye(EEG.nbchan) ,1:EEG.nbchan ,'SPoC',model);
+
 EEG.AD_z = z;
 warndlg2('Successful SPoC !','');
      

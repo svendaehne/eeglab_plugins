@@ -177,43 +177,10 @@ if run_on_all
    l = length(ALLEEG);
    for i=1:l
        [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',mod(i+mark-1,l)+1);
-       eval(sprintf('[ALLEEG EEG] = pop_ssd(ALLEEG, EEG, CURRENTSET,%s);',vararg2str(res)));
-       [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
+       eval(sprintf('[ALLEEG EEG] = pop_ssd(ALLEEG, EEG, CURRENTSET,%s);',vararg2str(res)));       
    end
    return;
 end
- 
-% Store and then remove current EEG weights and sphere
-% ----------------------------------------------------
-% following code based on pop_runica()
-
-fprintf('\n');
-if ~isempty(EEG.icaweights)
-    fprintf('Saving current decomposition in "EEG.etc.oldweights" (etc.).\n');
-    if(~isfield(EEG,'AD_type')||isempty(EEG.AD_type))
-        EEG.AD_type = 'ICA';
-    end
-    if ~isfield(EEG,'etc'), EEG.etc = []; end;
-    if ~isfield(EEG.etc,'oldweights')
-        EEG.etc.oldweights = {};
-        EEG.etc.oldsphere = {};
-        EEG.etc.oldchansind = {};
-        EEG.etc.oldtype = {};
-    end;
-    tmpoldweights  = EEG.etc.oldweights;
-    tmpoldsphere   = EEG.etc.oldsphere;
-    tmpoldchansind = EEG.etc.oldchansind;
-    tmpoldtype     = EEG.etc.oldtype;
-    EEG.etc.oldweights = { EEG.icaweights    tmpoldweights{:} };
-    EEG.etc.oldsphere  = { EEG.icasphere     tmpoldsphere{:}  };
-    EEG.etc.oldchansind  = { EEG.icachansind tmpoldchansind{:}  };
-    EEG.etc.oldtype = {EEG.AD_type tmpoldtype{:}    };
-    fprintf('               Decomposition saved as entry %d.\n',length(EEG.etc.oldweights));
-end
-EEG.icaweights = [];
-EEG.icasphere  = [];
-EEG.icawinv    = [];
-EEG.icaact     = [];
 
 % call ssd function
 % -----------------
@@ -223,32 +190,27 @@ freq(1,:) = signal_band; % signal bandpass band
 freq(2,:) = noise_bp_band; % noise bandpass band
 freq(3,:) = noise_bs_band; % noise bandstop band
 sampling_freq = EEG.srate;
-[W, EEG.icawinv, lambda, ~, X_ssd] = ssd(X, freq, sampling_freq,filter_order,epoch_indices);
+[W, A, lambda, ~, X_ssd] = ssd(X, freq, sampling_freq,filter_order,epoch_indices);
 
 if save_filtered
-    X_s = A * X_s; %X_ssd = X_s * W
-    EEG.data = permuted X_s;
+    n = length(lambda);
+    sz = size(EEG.data); % 1=chan,2=pnts,3=trials
+    X_s = A*X_ssd'; % X_ssd = X_s * W
+    EEG.data = reshape(X_s,[n,sz(2),sz(3)]); %(nbchan,pnts*trials) --> (nchan,pnts,trials)    
 end
 
-if ~isfield(EEG,'dipfit') || ~isstruct(EEG.dipfit)
-    EEG.dipfit = struct;
-end
-if isfield(EEG.dipfit,'model')
-    EEG.dipfit = rmfield(EEG.dipfit,'model');
-end
-EEG.dipfit.model = struct('AD_lambda',num2cell(lambda'));
+model = struct('AD_lambda',num2cell(lambda'));
+EEG = AD_store_new_weights( EEG , W', eye(EEG.nbchan), 1:EEG.nbchan,'SSD',model);
+EEG.icawinv = A;
 
-EEG.icaweights = W';
-EEG.icasphere = eye(EEG.nbchan);
-EEG.icachansind = 1:EEG.nbchan;
-EEG.AD_type = 'SSD';
-
-warndlg2(['Successful SSD for ' EEG.setname '!'] ,'');
+fprintf(['\nSuccessful SSD for ' EEG.setname '!\n\n']);
 
 %com='';
 if auto_dim_redu
     EEG = pop_subcomp(EEG,(n_dim_redu+1):size(EEG.icaweights,1));
     EEG.setname = [EEG.setname(1:end-3) 'SSD'];
 end
+
+[ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
 
 return;

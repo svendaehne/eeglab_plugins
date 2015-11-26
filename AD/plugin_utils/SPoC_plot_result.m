@@ -1,7 +1,7 @@
 % SPoC_plot_result() - plot 
 %
 % Usage:
-%   >>  AD_plot_lambda(EEG);
+%   >>  SPoC_plot_result(EEG);
 %
 % Inputs:
 %   INEEG   - SPoC_plot_result

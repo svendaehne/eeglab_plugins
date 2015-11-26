@@ -82,11 +82,9 @@ end
 
 for i=1:l
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',i);
-    EEG.icaweights = W{i}';
+    model = struct;
+    EEG = AD_store_new_weights( EEG , W{i}', eye(EEG.nbchan), 1:EEG.nbchan,'cSPoC',model);
     EEG.icawinv = A{i};
-    EEG.icasphere = eye(EEG.nbchan);
-    EEG.icachansind = 1:EEG.nbchan;
-    EEG.AD_type = 'cSPoC';
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);    
 end
 
