@@ -203,12 +203,11 @@ model = struct('AD_lambda',num2cell(lambda'));
 EEG = AD_store_new_weights( EEG , W', eye(EEG.nbchan), 1:EEG.nbchan,'SSD',model);
 EEG.icawinv = A;
 
-fprintf(['\nSuccessful SSD for ' EEG.setname '!\n\n']);
+warndlg2(['Successful SSD for ' EEG.setname '!']);
 
-%com='';
 if auto_dim_redu
     EEG = pop_subcomp(EEG,(n_dim_redu+1):size(EEG.icaweights,1));
-    EEG.setname = [EEG.setname(1:end-3) 'SSD'];
+    EEG = pop_editset( EEG, 'setname', [EEG.setname(1:end-3) 'SSD'])
 end
 
 [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);
