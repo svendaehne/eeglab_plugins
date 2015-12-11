@@ -42,9 +42,9 @@ end;
 
 continuous = ismatrix(EEG.data);
 if continuous
-    res = {'/home/hidai2/eeglab/plugins/AD/unplugged/z1.mat','10 12','2','0','-1 2',''}; % default values
+    res = {'z.mat','0','-1 2',''}; % default values
 else
-    res = {'/home/hidai2/eeglab/plugins/AD/unplugged/z1.mat','10 12','2','0',num2str([EEG.xmin EEG.xmax]),''}; % default values
+    res = {'z.mat','0',num2str([EEG.xmin EEG.xmax]),''}; % default values
 end
 
 for i=1:length(varargin)
@@ -53,7 +53,7 @@ end
 
 % popup window parameters
 % -----------------------
-if nargin < 4
+if nargin < 2
     commandload = [ '[filename, filepath] = uigetfile(''*'', ''Select a text file'');' ...
                     'if filename(1) ~=0,' ...
                     '   set(findobj(''parent'', gcbf, ''tag'', tagtest), ''string'', [ filepath filename ]);' ...
@@ -62,17 +62,13 @@ if nargin < 4
     uilist = { { 'Style', 'text', 'string', 'target function file' } ...
          { 'Style', 'pushbutton', 'string', 'Browse', 'callback', [ 'tagtest = ''path'';' commandload ] }...
          { 'Style', 'edit', 'string', res{1}, 'tag',  'path' }, {},...
-         { 'style' 'text' 'string' 'Signal bandpass band ([min max] in Hz):' } ...
-        { 'style' 'edit' 'string'  res{2} } ...
-        { 'style' 'text' 'string' 'filter order (integer scalar):' } ...
-        { 'style' 'edit' 'string'  res{3} } ...
         { 'style' 'text'       'string' 'Number of bootstrapping iterations (0 = non)' } ...
-        { 'style' 'edit'       'string' res{4} } ...
+        { 'style' 'edit'       'string' res{2} } ...
         { } {'style', 'text', 'string', 'Choose relevant data'} ...
         { 'style' 'text'       'string' 'Epoch limits [start, end] in seconds' } ...
-        { 'style' 'edit'       'string' res{5} } };
+        { 'style' 'edit'       'string' res{3} } };
 
-    uigeom = { [3 1] 1 1 [3 1] [3 1] [3 1] 1 1 [2 1.5] };
+    uigeom = { [3 1] 1 1 [3 1] 1 1 [2 1.5] };
     if continuous % in case of continuous data ask which event is relevant
        cbevent = ['if ~isfield(EEG.event, ''type'')' ...
 				   '   errordlg2(''No type field'');' ...
@@ -90,7 +86,7 @@ if nargin < 4
 				   'clear tmps tmpevent tmpv tmpstr tmpfieldnames;' ];
         epogeom = {[2 1 0.5]};
         epolist = { { 'style' 'text'       'string' 'Time-locking event type(s) ([]=all)' } ...
-        { 'style' 'edit'       'string' res{6} 'tag' 'events' } ...
+        { 'style' 'edit'       'string' res{4} 'tag' 'events' } ...
         { 'style' 'pushbutton' 'string' '...' 'callback' cbevent } };
 
         uilist = [ uilist , epolist];
@@ -100,39 +96,32 @@ if nargin < 4
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'SPoC - pop_spoc()', 'helpcom', 'pophelp(''pop_spoc'');');
 end
     z_path = res{1}; % target function file path
-    signal_band = str2num(res{2}); % signal bandpass band
-    filter_order = str2num(res{3}); % filter order
-    n_bootstrapping_iterations = str2num(res{4});
-    lim = eval( [ '[' res{5} ']' ] );
+    n_bootstrapping_iterations = str2num(res{2});
+    lim = eval( [ '[' res{3} ']' ] );
 
     
-X = double(EEG.data(:,:)'); %change shape before filtering over all. data --> (nbchan,pnts*trials) --> (pnts*trials,nbchan)
+X = double(EEG.data);
 sampling_freq = EEG.srate;
-% filter
-[b,a]=butter(filter_order, signal_band/(sampling_freq/2));
-X = filtfilt(b,a,X);
-
 
 % reshape to fit spoc()
 % ---------------------
 % in case of continuous data extract ephocs
 if continuous
-    if ~isempty(res{6})
-       if strcmpi(res{6}(1),'''')   % If event type appears to be in single-quotes, use comma
+    if ~isempty(res{4})
+       if strcmpi(res{4}(1),'''')   % If event type appears to be in single-quotes, use comma
                                        % and single-quote as delimiter between event types. toby 2.24.2006
                                        % fixed Arnaud May 2006
-                    events = eval( [ '{' res{6} '}' ] );
-       else    events = parsetxt( res{6});
+                    events = eval( [ '{' res{4} '}' ] );
+       else    events = parsetxt( res{4});
        end;
     else events = {};
     end    
     tempEEG = EEG;
-    tempEEG.data = X';
+    tempEEG.data = X;
     tempEEG = pop_epoch(tempEEG,events,lim);
     X = double(tempEEG.data);
 % otherwise change size of epochs
 else
-    X = reshape(X',[EEG.nbchan,EEG.pnts,EEG.trials]); %(pnts*trials,nbchan) --> (nbchan,pnts*trials) --> (nbchan,pnts,trials)
     real_lim = round(lim*sampling_freq - EEG.xmin*sampling_freq + 1);
     X = X(:,real_lim(1):real_lim(2),:);
 end

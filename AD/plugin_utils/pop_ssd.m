@@ -40,7 +40,7 @@ if nargin < 3
 end;
           
 epoch_indices = [];
-res = {'10 12','5 16','7 13','2',0,'5',0,0,'','-1 2'}; % default values
+res = {'10','2',0,'5',0,0,0,'','-1 2'}; % default values
 for i=1:length(varargin)
     res{i} = varargin{i}; % fill-in given values
 end
@@ -49,24 +49,20 @@ end
 % -----------------------
 if nargin < 6
           
-    uilist = { { 'style' 'text' 'string' 'Signal bandpass band ([min max] in Hz):' } ...
+    uilist = { { 'style' 'text' 'string' 'Central frequency (Hz):' } ...
         { 'style' 'edit' 'string'  res{1} } ...
-        { 'style' 'text' 'string' 'Noise bandpass band ([min max] in Hz):' } ...
-        { 'style' 'edit' 'string'  res{2} } ...
-        { 'style' 'text' 'string' 'Noise bandstop band ([min max] in Hz):' } ...
-        { 'style' 'edit' 'string'  res{3} } ...
         { 'style' 'text' 'string' 'filter order (integer scalar):' } ...
+        { 'style' 'edit' 'string'  res{2} } ...
+        { 'Style', 'checkbox', 'value', res{3}, 'string', ...
+        'Automatic dimension reduction'} ...
         { 'style' 'edit' 'string'  res{4} } ...
         { 'Style', 'checkbox', 'value', res{5}, 'string', ...
-        'Automatic dimension reduction'} ...
-        { 'style' 'edit' 'string'  res{6} } ...
-        { 'Style', 'checkbox', 'value', res{7}, 'string', ...
         'Save filtered data instead of original'} ...
-        { 'Style', 'checkbox', 'value', res{8}, 'string', ...
+        { 'Style', 'checkbox', 'value', res{6}, 'string', ...
         'Run on all datasets'} };
 
-    uigeom = { [3 1] [3 1] [3 1] [3 1] [3 1] [1] [1] };
-    if ismatrix(EEG.data) % in case of continuous data - ask whether to generate epoch_indices
+    uigeom = { [3 1] [3 1] [3 1] [1] [1] };
+    if ismatrix(EEG.data) % in case of continuous data - ask whether or not to generate epoch_indices
        cbevent = ['if ~isfield(EEG.event, ''type'')' ...
 				   '   errordlg2(''No type field'');' ...
 				   'else' ...
@@ -84,38 +80,42 @@ if nargin < 6
         epogeom = { 1 , 1 , [2 1 0.5] [2 1 0.5]};
         epolist = { { } {'style', 'checkbox', 'string', 'Use events to choose relevant data', 'value', res{7}} ...
               { 'style' 'text'       'string' 'Time-locking event type(s) ([]=all)' } ...
-              { 'style' 'edit'       'string' res{10} 'tag' 'events' } ...
+              { 'style' 'edit'       'string' res{8} 'tag' 'events' } ...
               { 'style' 'pushbutton' 'string' '...' 'callback' cbevent } ...
               { 'style' 'text'       'string' 'Epoch limits [start, end] in seconds' } ...
-              { 'style' 'edit'       'string' res{11} } { } };
+              { 'style' 'edit'       'string' res{9} } { } };
         uilist = [ uilist , epolist];
         uigeom = [ uigeom , epogeom];
     end
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'SSD - pop_ssd()', 'helpcom', 'pophelp(''pop_ssd'');');
 end
 
-    signal_band = str2num(res{1}); % signal bandpass band
-    noise_bp_band = str2num(res{2}); % noise bandpass band
-    noise_bs_band = str2num(res{3}); % noise bandstop band
-    filter_order = str2num(res{4}); % filter order
-    auto_dim_redu = res{5}; % automated dimention reduction (yes/no)
-    n_dim_redu = str2num(res{6}); % number of dimention to reduce to
-    save_filtered = res{7}; % saving filtered data instead of original (yes/no)
-    run_on_all = res{8}; % run on all datasets (yes/no)
+    fc = str2num(res{1});
+    bw = 0.5;
+    nbw = 1.8;
+    df = 0.2;
+    signal_band = 2.^(log2(fc)+bw.*[-0.5,0.5]); % signal bandpass band
+    noise_bp_band = 2.^(log2(fc)+nbw.*[-0.5,0.5]); % noise bandpass band
+    noise_bs_band = 2.^(log2(fc)+(bw+df).*[-0.5,0.5]); % noise bandstop band
+    filter_order = str2num(res{2}); % filter order
+    auto_dim_redu = res{3}; % automated dimention reduction (yes/no)
+    n_dim_redu = str2num(res{4}); % number of dimention to reduce to
+    save_filtered = res{5}; % saving filtered data instead of original (yes/no)
+    run_on_all = res{6}; % run on all datasets (yes/no)
     
- if ismatrix(EEG.data) && res{9}
+ if ismatrix(EEG.data) && res{7}
      
 % following code is based on pop_epoch()
-    if ~isempty(res{10})
-       if strcmpi(res{11}(1),'''')   % If event type appears to be in single-quotes, use comma
+    if ~isempty(res{8})
+       if strcmpi(res{9}(1),'''')   % If event type appears to be in single-quotes, use comma
                                        % and single-quote as delimiter between event types. toby 2.24.2006
                                        % fixed Arnaud May 2006
-                    events = eval( [ '{' res{10} '}' ] );
-       else    events = parsetxt( res{10});
+                    events = eval( [ '{' res{8} '}' ] );
+       else    events = parsetxt( res{8});
        end;
     else events = {};
     end
-   lim = eval( [ '[' res{11} ']' ] );
+   lim = eval( [ '[' res{9} ']' ] );
    
 tmpevent = EEG.event;
 tmpeventlatency = [ tmpevent(:).latency ];
@@ -172,7 +172,7 @@ if ~isempty( events )
 
 if run_on_all
 
-   res{8} = 0;
+   res{6} = 0;
    mark = CURRENTSET;
    l = length(ALLEEG);
    for i=1:l
@@ -193,10 +193,13 @@ sampling_freq = EEG.srate;
 [W, A, lambda, ~, X_ssd] = ssd(X, freq, sampling_freq,filter_order,epoch_indices);
 
 if save_filtered
-    n = length(lambda);
-    sz = size(EEG.data); % 1=chan,2=pnts,3=trials
     X_s = A*X_ssd'; % X_ssd = X_s * W
-    EEG.data = reshape(X_s,[n,sz(2),sz(3)]); %(nbchan,pnts*trials) --> (nchan,pnts,trials)    
+    if ~ismatrix(EEG.data)
+        n = size(X_s,1);
+        sz = size(EEG.data); % 1=chan,2=pnts,3=trials
+        X_s = reshape(X_s,[n,sz(2),sz(3)]); %(nbchan,pnts*trials) --> (nchan,pnts,trials) 
+    end
+    EEG.data = X_s;
 end
 
 model = struct('AD_lambda',num2cell(lambda'));

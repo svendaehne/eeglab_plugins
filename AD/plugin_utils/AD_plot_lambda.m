@@ -42,7 +42,7 @@ xlabel('Component number')
 ylabel('lambda value')
 
 function mouseclick_callback(~,~)
-    % changes scalp plot source if click on bar
+    % changes scalp plot source if a bar was clicked
     switch get(gcf,'SelectionType')
            case 'normal' % Click left mouse button.
                cP = get(gca,'Currentpoint');
@@ -54,7 +54,7 @@ function mouseclick_callback(~,~)
     end
 end
 function mouseclick_callback2(~,~)
-    %resets scalp plot source if click on background
+    %resets scalp plot source if background was clicked 
     switch get(gcf,'SelectionType')
         case 'normal' % Click left mouse button.
 subplot(2,1,1)
