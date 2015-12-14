@@ -59,7 +59,7 @@ if nargin < 2
                     '   set(findobj(''parent'', gcbf, ''tag'', tagtest), ''string'', [ filepath filename ]);' ...
                     'end;' ...
                     'clear filename filepath tagtest;' ];
-    uilist = { { 'Style', 'text', 'string', 'target function file' } ...
+    uilist = { { 'Style', 'text', 'string', 'Target function file' } ...
          { 'Style', 'pushbutton', 'string', 'Browse', 'callback', [ 'tagtest = ''path'';' commandload ] }...
          { 'Style', 'edit', 'string', res{1}, 'tag',  'path' }, {},...
         { 'style' 'text'       'string' 'Number of bootstrapping iterations (0 = non)' } ...
@@ -154,11 +154,13 @@ else
 end
 X_var = (log(X_var));
 
-model = struct('AD_lambda',num2cell(lambda'),'AD_p_value',num2cell(p_value),'AD_spoc_signal',mat2cell(X_var,sz(3),ones(1,l)));
+model = struct('AD_lambda',num2cell(lambda'),'SPoC_p_value',num2cell(p_value),'SPoC_signal',mat2cell(X_var,sz(3),ones(1,l)));
 EEG = AD_store_new_weights( EEG , W', eye(EEG.nbchan) ,1:EEG.nbchan ,'SPoC',model);
-
 EEG.AD_z = z;
-warndlg2('Successful SPoC !','');
+
+if nargin < 2
+    warndlg2(['Successful SPoC for ' EEG.setname '!'],'Notice');
+end
      
 % return the string command
 % -------------------------

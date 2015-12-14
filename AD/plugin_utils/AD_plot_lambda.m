@@ -39,7 +39,7 @@ end
 % plot bar graph
 bar([EEG.dipfit.model.AD_lambda]);
 xlabel('Component number')
-ylabel('lambda value')
+ylabel('Lambda value')
 
 function mouseclick_callback(~,~)
     % changes scalp plot source if a bar was clicked

@@ -47,11 +47,11 @@ end
 
 % popup window parameters
 % -----------------------
-if nargin < 6
-          
+if nargin < 4
+         
     uilist = { { 'style' 'text' 'string' 'Central frequency (Hz):' } ...
         { 'style' 'edit' 'string'  res{1} } ...
-        { 'style' 'text' 'string' 'filter order (integer scalar):' } ...
+        { 'style' 'text' 'string' 'Filter order (integer scalar):' } ...
         { 'style' 'edit' 'string'  res{2} } ...
         { 'Style', 'checkbox', 'value', res{3}, 'string', ...
         'Automatic dimension reduction'} ...
@@ -77,19 +77,36 @@ if nargin < 6
 				   '   end;' ...
 				   'end;' ...
 				   'clear tmps tmpevent tmpv tmpstr tmpfieldnames;' ];
-        epogeom = { 1 , 1 , [2 1 0.5] [2 1 0.5]};
+        epogeom = { 1 , 1 , [2 1 0.5] [2 1.5]};
         epolist = { { } {'style', 'checkbox', 'string', 'Use events to choose relevant data', 'value', res{7}} ...
               { 'style' 'text'       'string' 'Time-locking event type(s) ([]=all)' } ...
               { 'style' 'edit'       'string' res{8} 'tag' 'events' } ...
               { 'style' 'pushbutton' 'string' '...' 'callback' cbevent } ...
               { 'style' 'text'       'string' 'Epoch limits [start, end] in seconds' } ...
-              { 'style' 'edit'       'string' res{9} } { } };
+              { 'style' 'edit'       'string' res{9} } };
         uilist = [ uilist , epolist];
         uigeom = [ uigeom , epogeom];
     end
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'SSD - pop_ssd()', 'helpcom', 'pophelp(''pop_ssd'');');
 end
 
+    run_on_all = res{6}; % run on all datasets (yes/no)
+       
+% in case of multiple subjects 
+
+if run_on_all
+
+   res{6} = 0;
+   mark = CURRENTSET;
+   l = length(ALLEEG);
+   for i=1:l
+       [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',mod(i+mark-1,l)+1);
+       eval(sprintf('[ALLEEG EEG] = pop_ssd(ALLEEG, EEG, CURRENTSET,%s);',vararg2str(res)));       
+   end
+   warndlg2('Successful SSD for all datasets!','Notice');
+   return;
+end
+ 
     fc = str2num(res{1});
     bw = 0.5;
     nbw = 1.8;
@@ -101,7 +118,6 @@ end
     auto_dim_redu = res{3}; % automated dimention reduction (yes/no)
     n_dim_redu = str2num(res{4}); % number of dimention to reduce to
     save_filtered = res{5}; % saving filtered data instead of original (yes/no)
-    run_on_all = res{6}; % run on all datasets (yes/no)
     
  if ismatrix(EEG.data) && res{7}
      
@@ -148,7 +164,7 @@ if ~isempty( events )
             error('pop_epoch(): multiple event types must be entered as {''a'', ''cell'', ''array''}'); return;
         end;
         Ievent = sort(intersect(Ievent, Ieventtmp));
-    end
+end
 
     % select event latencies
     %------------------------------------
@@ -166,21 +182,6 @@ if ~isempty( events )
 % return the string command
 % -------------------------
    com =  sprintf('[ALLEEG EEG] = pop_ssd(%s,%s,%s,%s);', inputname(1),inputname(2),inputname(3), vararg2str(res));
-   
-   
-% in case of multiple subjects 
-
-if run_on_all
-
-   res{6} = 0;
-   mark = CURRENTSET;
-   l = length(ALLEEG);
-   for i=1:l
-       [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',mod(i+mark-1,l)+1);
-       eval(sprintf('[ALLEEG EEG] = pop_ssd(ALLEEG, EEG, CURRENTSET,%s);',vararg2str(res)));       
-   end
-   return;
-end
 
 % call ssd function
 % -----------------
@@ -206,11 +207,13 @@ model = struct('AD_lambda',num2cell(lambda'));
 EEG = AD_store_new_weights( EEG , W', eye(EEG.nbchan), 1:EEG.nbchan,'SSD',model);
 EEG.icawinv = A;
 
-warndlg2(['Successful SSD for ' EEG.setname '!']);
+if nargin < 4
+    warndlg2(['Successful SSD for ' EEG.setname '!'],'Notice');
+end
 
 if auto_dim_redu
     EEG = pop_subcomp(EEG,(n_dim_redu+1):size(EEG.icaweights,1));
-    EEG = pop_editset( EEG, 'setname', [EEG.setname(1:end-3) 'SSD'])
+    EEG = pop_editset( EEG, 'setname', [EEG.setname(1:end-3) 'SSD']);
 end
 
 [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);

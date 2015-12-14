@@ -25,8 +25,8 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 function com = SPoC_plot_result(EEG)
-p = [EEG.dipfit.model.AD_p_value];
-spoc_signal = [EEG.dipfit.model.AD_spoc_signal];
+p = [EEG.dipfit.model.SPoC_p_value];
+spoc_signal = [EEG.dipfit.model.SPoC_signal];
 z = zscore(EEG.AD_z');
 x = spoc_signal(:,1);
 x = zscore(x);
@@ -35,10 +35,10 @@ x = x*sign(co);
 
 plot(z,'k.-')
 title('SPoC component performance')
-xlabel({'trial number';sprintf('SPoC Component 1 ; correlation = %g ; p value = %g',co,p(1))})
+xlabel({'Trial number';sprintf('SPoC Component 1 ; Correlation = %g ; p value = %g',co,p(1))})
 hold on
 h = plot(x,'.-');
-legend('target function','signal log-power')
+legend('Normalized target function','Signal log-power')
 hold off
 uicontrol('Style', 'popup',...
        'String', num2cell(1:size(spoc_signal,2)),...
@@ -52,7 +52,7 @@ function popup_Callback(hObject, ~)
     coi = corr(z,xi);
     xi = xi*sign(coi);
     set(h,'YData',xi)
-    xlabel({'trial number';sprintf('SPoC Component %d ; correlation = %g ; p value = %g',i,coi,p(i))})
+    xlabel({'Trial number';sprintf('SPoC Component %d ; correlation = %g ; p value = %g',i,coi,p(i))})
 end
 
 com =  sprintf('SPoC_plot_result(%s);', inputname(1));

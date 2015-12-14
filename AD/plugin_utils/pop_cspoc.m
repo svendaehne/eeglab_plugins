@@ -40,7 +40,7 @@ if nargin < 3
     return;
 end;
 
-res = {'1','1',0,0,'10','200','1',0}; % default values
+res = {'1','1',0,0,'10','200','1'}; % default values
 
 for i=1:length(varargin)
     res{i} = varargin{i};
@@ -50,21 +50,20 @@ end
 % -----------------------
 if nargin < 4
 
-    uilist = { { 'Style', 'text', 'string', 'envelope correlations' }, ...
+    uilist = { { 'Style', 'text', 'string', 'Envelope correlations' }, ...
          { 'Style', 'listbox', 'string', 'Maximize|Minimize' } ...
          { 'style' 'text' 'string' 'Number of components sets to be extracted:' } ...
          { 'style' 'edit' 'string'  res{2} } ...
-         { 'Style', 'checkbox', 'value', res{3}, 'string', 'use log'} ...
-         { 'Style', 'checkbox', 'value', res{4}, 'string', 'average over epochs'} ...
-         { 'style' 'text' 'string' 'number of re-starts per component pair:' } ...
+         { 'Style', 'checkbox', 'value', res{3}, 'string', 'Use log'} ...
+         { 'Style', 'checkbox', 'value', res{4}, 'string', 'Average over epochs'} ...
+         { 'style' 'text' 'string' 'Number of re-starts per component pair:' } ...
          { 'style' 'edit' 'string'  res{5} } ...
-         { 'style' 'text' 'string' 'maximum number of optimizer iterations:' } ...
+         { 'style' 'text' 'string' 'Maximum number of optimizer iterations:' } ...
          { 'style' 'edit' 'string'  res{6} } ...
-         { 'style' 'text' 'string' 'verbose:' } ...
-         { 'style' 'edit' 'string'  res{7} } ...
-         { 'Style', 'checkbox', 'value', res{8}, 'string', 'save r_values to file'} };
+         { 'style' 'text' 'string' 'Verbose:' } ...
+         { 'style' 'edit' 'string'  res{7} } };
 
-    uigeom = { [3 1] [3 1] [] [1] [1] [] [3 1] [3 1] [3 1] [] [1] };
+    uigeom = { [3 1] [3 1] [] [1] [1] [] [3 1] [3 1] [3 1] };
 
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'cSPoC - pop_cspoc()', 'helpcom', 'pophelp(''pop_cspoc'');');
     res{1} = 3-2*res{1}; %transformation: (1,2) -> (1,-1)
@@ -82,18 +81,14 @@ end
 
 for i=1:l
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',i);
-    model = struct;
+    model = struct('cSPoC_r_value',r_values,'cSPoC_all_r_values',all_r_values);
     EEG = AD_store_new_weights( EEG , W{i}', eye(EEG.nbchan), 1:EEG.nbchan,'cSPoC',model);
     EEG.icawinv = A{i};
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET);    
 end
 
-warndlg2('Successful cSPoC !','');
-
-% save the r values in .mat file
-if res{8}
-    [curfilename, curfilepath] = uiputfile('r_values.mat', 'Save the EEGLAB session command history with .m extension -- pop_saveh()'); 
-    save([ curfilepath '/' curfilename ],'r_values','all_r_values');
+if nargin < 4
+    warndlg2(['Successful cSPoC!'],'Notice');
 end
 
 % return the string command
