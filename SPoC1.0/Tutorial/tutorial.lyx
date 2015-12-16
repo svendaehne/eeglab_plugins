@@ -1,0 +1,956 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\date{}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+EEGLAB SPoC plug-in tutorial
+\end_layout
+
+\begin_layout Section*
+What is the SPoC plug-in for EEGLAB?
+\end_layout
+
+\begin_layout Standard
+The SPoC plug-in is a set of Matlab tools developed by the IDA group of
+ the TU of Berlin, that allows the decomposition of the EEG data using the
+ SSD, SPoC and cSPoC methods.
+ These tools are designed to work within the EEGLAB environment, providing
+ a GUI to decompose the data into different relevant components:
+\end_layout
+
+\begin_layout Enumerate
+SSD - Extracts components with optimized signal-to-noise ratio at a frequency
+ band of interest.
+\end_layout
+
+\begin_layout Enumerate
+SPoC - Extracts components with maximal power covariance with the univariate
+ target function z.
+\end_layout
+
+\begin_layout Enumerate
+cSPoC - Extracts components with maximal envelope correlations from N oscillator
+y and multivariate datasets.
+ For N>2, the extracted components maximize the pairwise averaged envelope
+ correlations.
+\end_layout
+
+\begin_layout Standard
+All of the tools can also be used from the Matlab command line, providing
+ expert users with the ability to use them in custom scripts.
+\end_layout
+
+\begin_layout Section*
+Requirements
+\end_layout
+
+\begin_layout Standard
+In addition to the requirements of EEGLAB, SPoC plug-in requires the following
+ folders to be stored in the plug-in folder: 
+\series bold
+SSD ; SPoC ; cSPoC ; utils
+\series default
+.
+ These folders are found in the following repository:
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+https://github.com/svendaehne/matlab_SPoC.
+\end_layout
+
+\begin_layout Section*
+Download and Installation
+\end_layout
+
+\begin_layout Enumerate
+Go to:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\shape italic
+https://github.com/svendaehne/eeglab_plugins
+\end_layout
+
+\begin_layout Standard
+push the 
+\begin_inset Quotes eld
+\end_inset
+
+Download ZIP
+\begin_inset Quotes erd
+\end_inset
+
+ botton and choose where to save the file.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Uncompress the downloaded file into the 'plugins' directory of your EEGLAB
+ distribution.
+ You should now have a directory called 'SPoC' containing necessary files.
+\end_layout
+
+\begin_layout Enumerate
+Obtain the following folders from the SPoC repository
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\shape italic
+(https://github.com/svendaehne/matlab_SPoC)
+\end_layout
+
+\begin_layout Standard
+and store them in the 'SPoC' directory: 
+\series bold
+SSD, SPoC, cSPoC, utils
+\series default
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Starting EEGLAB should now automatically recognize and add the plug-in.
+ You should see the following line appear in your Matlab environment window:
+\end_layout
+
+\begin_layout Standard
+EEGLAB: adding "SPoC" v.1.0 (see >> help eegplugin_AD)
+\end_layout
+
+\begin_layout Description
+Voilà!
+\end_layout
+
+\begin_layout Section*
+Tutorial
+\end_layout
+
+\begin_layout Subsection*
+Using components
+\end_layout
+
+\begin_layout Standard
+After running each of these decompositions your data will be assigned with
+ components.
+ These components are saved in the ICA components slot (EEG.icaweights).
+\end_layout
+
+\begin_layout Standard
+Read the ICA tutorial
+\end_layout
+
+\begin_layout Standard
+(
+\shape italic
+http://sccn.ucsd.edu/wiki/Chapter_09:_Decomposing_Data_Using_ICA
+\shape default
+)
+\end_layout
+
+\begin_layout Standard
+to learn about the following actions which can be performed using AD components,
+ in the exact same manner:
+\end_layout
+
+\begin_layout Enumerate
+Plotting scalp maps
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+(
+\shape italic
+http://sccn ...
+ #Plotting_2-D_Component_Scalp_Maps
+\shape default
+)
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Plotting components activation
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+(
+\shape italic
+http://sccn ...
+ #Scrolling_through_component_activations
+\shape default
+)
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Studying and removing components
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+(
+\shape italic
+http://sccn ...
+ #Studying_and_removing_ICA_components
+\shape default
+)
+\end_layout
+
+\end_deeper
+\begin_layout Subsection*
+SSD
+\end_layout
+
+\begin_layout Standard
+The SSD function extracts components with optimized signal-to-noise ratio
+ at a frequency band of interest.
+\end_layout
+
+\begin_layout Subsubsection*
+Preparation
+\end_layout
+
+\begin_layout Enumerate
+Run EEGLAB and load the relevant dataset/s.
+ Data can be either epochs or continuous EEG.
+\end_layout
+
+\begin_layout Subsubsection*
+Run
+\end_layout
+
+\begin_layout Enumerate
+Select 
+\series bold
+Tools > SPoC > Run SSD
+\series default
+.
+ This calls the function pop_ssd.m.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/ssd_form_e.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Fill out the parameters form and press 
+\series bold
+OK
+\series default
+.
+ Here is the parameters description (top down, left to right):
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Central frequency for the filtering processes.
+ The calculation of the cut-off frequencies is as follows:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+signal band-pass
+\begin_inset Formula $=2^{(log2(fc)-0.25)};2^{(log2(fc)+0.25)}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+noise band-past
+\begin_inset Formula $=2^{(log2(fc)-0.9)};2^{(log2(fc)+0.9)}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+noise band-stop
+\begin_inset Formula $=2^{(log2(fc)-0.35)};2^{(log2(fc)+0.35)}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+'fc' being the chosen central frequency.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Filter order used for butterworth bandpass and bandstop filtering.
+ If unsure about it, use the default value of order 2.
+\end_layout
+
+\begin_layout Enumerate
+Automatically subtract components from data (Yes/No).
+\end_layout
+
+\begin_layout Enumerate
+Numbers of component to keep (the rest will be subtracted).
+ Only relevant if you marked the checkbox in (c).
+\end_layout
+
+\begin_layout Enumerate
+Overwrite the original data with the data filtered around the central frequency
+ given at (a) (Yes/No).
+\end_layout
+
+\begin_layout Enumerate
+Run the same calculation on all loaded datasets (Yes/No).
+\end_layout
+
+\begin_layout Standard
+In case the data is continues and contains event marks, you could also choose
+ to use only event related data:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/ssd_form_c.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Mark to use this option.
+\end_layout
+
+\begin_layout Enumerate
+The name of the event/s you wish to use.
+\end_layout
+
+\begin_layout Enumerate
+The limits around the events.
+ Data outside these limits will not be taken into account for the calculation.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Wait until the following massage (With your dataset name) appears and press
+ 
+\series bold
+OK
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/ssd_s.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The components spatial filters are now stored under EEG.icaweights while
+ old weights from pervious decompositions are stored under EEG.etc.oldweights.
+\end_layout
+
+\begin_layout Standard
+In the structure EEG.dipfit.model you can find the lambda values.
+\end_layout
+
+\begin_layout Subsubsection*
+Plot
+\end_layout
+
+\begin_layout Standard
+For SSD and SPoC you can plot the lambda values of the decomposition.
+ Select 
+\series bold
+Plot > SPoC > Lambda spectrum
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/lambda_plot.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+clicking on a blue bar shows the scalp plot of the relevant component.
+ 
+\end_layout
+
+\begin_layout Subsection*
+SPoC
+\end_layout
+
+\begin_layout Standard
+The SPoC function extracts components with maximal power covariance with
+ the univariate target function z.
+\end_layout
+
+\begin_layout Subsubsection*
+Preparation
+\end_layout
+
+\begin_layout Standard
+To get the best results we recommend applying SPoC analysis only after 
+\bar under
+filtering
+\bar default
+ and 
+\bar under
+reducing data dimension
+\bar default
+ using SSD.
+ To do both, select 
+\series bold
+Tools > SPoC > Run SSD
+\series default
+, mark the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Dimension reduction
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Save filtered data instead of original
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ checkboxes and choose the relevant central frequency and the number of
+ components you wish to keep (=dimension degree).
+\end_layout
+
+\begin_layout Enumerate
+Save the relevant target function z as a vector in a .mat file.
+\end_layout
+
+\begin_layout Enumerate
+Run EEGLAB and load the relevant dataset.
+ Data can be either epochs or continuous EEG.
+ In the continues case data will be segmented based on its events.
+ Make sure that the number of epochs or events is equal to the length of
+ your target function z vector.
+\end_layout
+
+\begin_layout Subsubsection*
+Run
+\end_layout
+
+\begin_layout Enumerate
+Select 
+\series bold
+Tools > SPoC > Run SPoC
+\series default
+.
+ This calls the function pop_spoc.m.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/spoc_form_e.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Fill out the parameters form and press 
+\series bold
+OK
+\series default
+.
+ Here is the parameters description (top down, left to right):
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Target function z file path.
+ You could use the browse option to find the file in your folders.
+\end_layout
+
+\begin_layout Enumerate
+Number of bootstrapping iterations used to calculate p-values of the results.
+\end_layout
+
+\begin_layout Enumerate
+The relevant data limits for the calculation.
+ Data outside these limits will not be taken into account for the calculation.
+\end_layout
+
+\begin_layout Standard
+In case the data is continues, you could still use SPoC based on event marks:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/spoc_form_c.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The limits around the events.
+ Data outside these limits will not be taken into account for the calculation.
+\end_layout
+
+\begin_layout Enumerate
+The name of the event/s you wish to use.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Wait until the following massage (With your dataset name) appears and press
+ 
+\series bold
+OK
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/spoc_s.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The components spatial filters are now stored under EEG.icaweights while
+ old weights from pervious decompositions are stored under EEG.etc.oldweights.
+\end_layout
+
+\begin_layout Standard
+In the structure EEG.dipfit.model you can find the lambda values, p values
+ and the SPoC signal function of each component.
+\end_layout
+
+\begin_layout Subsubsection*
+Plot
+\end_layout
+
+\begin_layout Standard
+See the plot section of SSD for lambda spectrum plot.
+\end_layout
+
+\begin_layout Standard
+Select 
+\series bold
+Plot > SPoC > SPoC results
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/spoc_plot.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Choose any component from the drop list to show its power function next
+ to the target function.
+ 
+\end_layout
+
+\begin_layout Subsection*
+cSPoC
+\end_layout
+
+\begin_layout Standard
+The cSPoC function extracts components with maximal envelope correlations
+ from N oscillatory and multivariate datasets.
+ For N>2, the extracted components maximize the pairwise averaged envelope
+ correlations.
+\end_layout
+
+\begin_layout Subsubsection*
+Preparation
+\end_layout
+
+\begin_layout Standard
+To get the best results we recommend applying cSPoC analysis only after
+ 
+\bar under
+filtering
+\bar default
+ and 
+\bar under
+reducing data dimension
+\bar default
+ using SSD.
+ To do both, select 
+\series bold
+Tools > SPoC > Run SSD
+\series default
+, mark the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Dimension reduction
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Save filtered data instead of original
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\series bold
+Run on all datasets
+\series default
+
+\begin_inset Quotes erd
+\end_inset
+
+ checkboxes and choose the relevant central frequency and the number of
+ components you wish to keep (=dimension degree).
+\end_layout
+
+\begin_layout Enumerate
+Run EEGLAB and load all relevant datasets.
+ Any loaded dataset will be taken into account.
+ Make sure that all datasets are segmented to the same number of epochs.
+\end_layout
+
+\begin_layout Subsubsection*
+Run
+\end_layout
+
+\begin_layout Enumerate
+Select 
+\series bold
+Tools > SPoC > Run cSPoC
+\series default
+.
+ This calls the function pop_cspoc.m.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/cSPoC_form.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Fill out the parameters form and press 
+\series bold
+OK
+\series default
+.
+ Here is the parameters description (top down, left to right):
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Maximizing or minimizing the envelopes correlation.
+\end_layout
+
+\begin_layout Enumerate
+Number of envelope-correlated components per dataset to be extracted.
+\end_layout
+
+\begin_layout Enumerate
+Optimize correlations of log-envelopes rather then envelopes (Yes/No).
+\end_layout
+
+\begin_layout Enumerate
+When optimizing the correlations, average the source envelopes within epochs
+ (Yes/No).
+\end_layout
+
+\begin_layout Enumerate
+Number of re-starts per component pair.
+\end_layout
+
+\begin_layout Enumerate
+Maximum number of optimizer iterations.
+\end_layout
+
+\begin_layout Enumerate
+Level of detail in command line output.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Wait until the following massage appears and press 
+\series bold
+OK
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/cspoc_s.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The components spatial filters are now stored under EEG.icaweights while
+ old weights from pervious decompositions are stored under EEG.etc.oldweights.
+\end_layout
+
+\begin_layout Standard
+In the structure EEG.dipfit.model you can find all the correlation r values.
+\end_layout
+
+\begin_layout Subsubsection*
+Plot
+\end_layout
+
+\begin_layout Standard
+Select 
+\series bold
+Plot > SPoC > cSPoC results
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/cspoc_plot_form.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the pop-up window, select which component set you would like to plot.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename pics/cspoc_plot.png
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We recommend increasing the displayed number of epochs using 
+\series bold
+Setting > Time range to display > Number of epoch(s)
+\series default
+.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+Nikulin VV, Nolte G, Curio G.
+ A novel method for reliable and fast extraction of neuronal EEG/MEG oscillation
+s on the basis of spatio-spectral decomposition.
+ NeuroImage, 2011, 55: 1528-1535.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-2"
+
+\end_inset
+
+S.
+ Dähne, F.
+ C.
+ Meinecke, S.
+ Haufe, J.
+ Höhne, M.
+ Tangermann, K.
+ R.
+ Müller, V.
+ V.
+ Nikulin, "SPoC: a novel framework for relating the amplitude of neuronal
+ oscillations to behaviorally relevant parameters", NeuroImage, 86(0):111-122,
+ 2014
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-3"
+
+\end_inset
+
+S.
+ Dähne, V.
+ V.
+ Nikulin, D.
+ Ramirez, P.
+ J.
+ Schreier, K.
+ R.
+ Müller, S.
+ Haufe, "Finding brain oscillations with power dependencies in neuroimaging
+ data", NeuroImage, 96:334-348, 2014
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-4"
+
+\end_inset
+
+S.
+ Haufe, S.
+ Dähne, V.
+ V.
+ Nikulin, "Dimensionality reduction for the analysis of brain oscillations"
+ NeuroImage 101:583-597 2014
+\end_layout
+
+\end_body
+\end_document
