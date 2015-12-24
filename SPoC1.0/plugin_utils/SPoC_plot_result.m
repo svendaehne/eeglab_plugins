@@ -1,4 +1,4 @@
-% SPoC_plot_result() - plot 
+% SPoC_plot_result() - plot SPoC results.
 %
 % Usage:
 %   >>  SPoC_plot_result(EEG);
@@ -8,7 +8,7 @@
 %
 % See also: pop_spoc(), spoc()
 %
-% Copyright (C) 2014 Idai Guertel
+% Copyright (C) 2015 Idai Guertel.
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ title('SPoC component performance')
 xlabel({'Trial number';sprintf('SPoC Component 1 ; Correlation = %g ; p value = %g',co,p(1))})
 hold on
 h = plot(x,'.-');
-legend('Normalized target function','Signal log-power')
+legend('Normalized target function','Normalized signal log-power')
 hold off
 uicontrol('Style', 'popup',...
        'String', num2cell(1:size(spoc_signal,2)),...

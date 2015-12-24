@@ -1,8 +1,15 @@
+% SPoC_store_new_weights() -  Store and then replace current EEG weights
+% and sphere with new ones.
+%
+% !- Used for SPoC plug-in functions internal use.
+%
+% See also: pop_ssd, pop_spoc(), pop_cspoc()
+%
+% Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
+% Makeig
 
-function EEG = SPoC_store_new_weights( EEG , weights, sphere, chansind,SPoC_type,model)
+function EEG = SPoC_store_new_weights( EEG , weights, sphere, chansind, SPoC_type, model)
 
-% Store and then remove current EEG weights and sphere
-% ----------------------------------------------------
 % following code based on pop_runica()
 
 fprintf('\n');

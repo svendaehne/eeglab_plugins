@@ -9,7 +9,7 @@
 %   EEG        - current dataset structure or structure array
 %   CURRENTSET - index(s) of the current EEG dataset(s) in ALLEEG
 %
-% See also: ssd(), pop_spoc(), spoc()
+% See also: ssd(), pop_spoc(), pop_cspoc(), SPoC_plot_lambda()
 %
 % Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
 % Makeig.
@@ -88,12 +88,13 @@ if nargin < 4
         uigeom = [ uigeom , epogeom];
     end
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'SSD - pop_ssd()', 'helpcom', 'pophelp(''pop_ssd'');');
+    if length(res) == 0 return; end;
 end
 
     run_on_all = res{6}; % run on all datasets (yes/no)
        
 % in case of multiple subjects 
-
+% ------------
 if run_on_all
 
    res{6} = 0;
@@ -103,6 +104,7 @@ if run_on_all
        [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',mod(i+mark-1,l)+1);
        eval(sprintf('[ALLEEG EEG] = pop_ssd(ALLEEG, EEG, CURRENTSET,%s);',vararg2str(res)));       
    end
+   com =  sprintf('[ALLEEG EEG] = pop_ssd(%s,%s,%s,%s);', inputname(1),inputname(2),inputname(3), vararg2str(res));
    warndlg2('Successful SSD for all datasets!','Notice');
    return;
 end
@@ -122,6 +124,7 @@ end
  if ismatrix(EEG.data) && res{7}
      
 % following code is based on pop_epoch()
+% ------------
     if ~isempty(res{8})
        if strcmpi(res{9}(1),'''')   % If event type appears to be in single-quotes, use comma
                                        % and single-quote as delimiter between event types. toby 2.24.2006
@@ -193,6 +196,8 @@ freq(3,:) = noise_bs_band; % noise bandstop band
 sampling_freq = EEG.srate;
 [W, A, lambda, ~, X_ssd] = ssd(X, freq, sampling_freq,filter_order,epoch_indices);
 
+% save the results
+% ------------
 if save_filtered
     X_s = A*X_ssd'; % X_ssd = X_s * W
     if ~ismatrix(EEG.data)

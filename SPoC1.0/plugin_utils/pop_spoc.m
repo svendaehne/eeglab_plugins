@@ -10,7 +10,7 @@
 % Outputs:
 %   OUTEEG  - output dataset
 %
-% See also: spoc(), pop_ssd(), ssd()
+% See also: spoc(), pop_ssd(), SPoC_plot_lambda(), SPoC_plot_result()
 %
 % Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
 % Makeig.
@@ -94,6 +94,7 @@ if nargin < 2
     end
 
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'SPoC - pop_spoc()', 'helpcom', 'pophelp(''pop_spoc'');');
+    if length(res) == 0 return; end;
 end
     z_path = res{1}; % target function file path
     n_bootstrapping_iterations = str2num(res{2});
@@ -128,6 +129,7 @@ end
 X = permute(X,[2,1,3]); % (nbchan,pnts,trials) --> (pnts,nbchan,trials)
 
 % target function
+% ---------------
 matObj = matfile(z_path);
 varlist = who(matObj);
 z = matObj.(varlist{1});

@@ -10,7 +10,7 @@
 % Outputs:
 %   OUTALLEEG  - output datasets
 %
-% See also: cspoc(), pop_spoc(), spoc(), pop_ssd(), ssd()
+% See also: cspoc(), pop_ssd(), cSPoC_plot_result()
 %
 % Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
 % Makeig.
@@ -63,13 +63,15 @@ if nargin < 4
          { 'style' 'text' 'string' 'Verbose:' } ...
          { 'style' 'edit' 'string'  res{7} } };
 
-    uigeom = { [3 1] [3 1] [] [1] [1] [] [3 1] [3 1] [3 1] };
+    uigeom = { [3 1] [3 1] [] 1 1 [] [3 1] [3 1] [3 1] };
 
     res = inputgui( 'uilist', uilist, 'geometry', uigeom, 'title', 'cSPoC - pop_cspoc()', 'helpcom', 'pophelp(''pop_cspoc'');');
+    if length(res) == 0 return; end;
     res{1} = 3-2*res{1}; %transformation: (1,2) -> (1,-1)
 end
 
 % adjust data to cspoc expected format
+% ------------------------------------
 l=length(ALLEEG);
 for i=1:l
     X{i} = permute(ALLEEG(i).data,[2,1,3]); % (nbchan,pnts,trials) --> (pnts,nbchan,trials)
@@ -79,6 +81,8 @@ end
     ,'use_log', res{3},'average_over_epochs',res{4}, 'n_repeats',str2num(res{5})...
     ,'maxIter',str2num(res{6}),'verbose',str2num(res{7}));
 
+% save results
+% ------------
 for i=1:l
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET,'retrieve',i);
     model = struct('cSPoC_r_value',r_values,'cSPoC_all_r_values',all_r_values);
@@ -88,7 +92,7 @@ for i=1:l
 end
 
 if nargin < 4
-    warndlg2(['Successful cSPoC!'],'Notice');
+    warndlg2('Successful cSPoC!','Notice');
 end
 
 % return the string command

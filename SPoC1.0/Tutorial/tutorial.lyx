@@ -378,6 +378,8 @@ Numbers of component to keep (the rest will be subtracted).
 \begin_layout Enumerate
 Overwrite the original data with the data filtered around the central frequency
  given at (a) (Yes/No).
+ Notice that after running this option, the original data will be lost if
+ not saved separately!
 \end_layout
 
 \begin_layout Enumerate
@@ -418,6 +420,8 @@ Wait until the following massage (With your dataset name) appears and press
  
 \series bold
 OK
+\series default
+.
 \end_layout
 
 \begin_deeper
@@ -614,6 +618,8 @@ Wait until the following massage (With your dataset name) appears and press
  
 \series bold
 OK
+\series default
+.
 \end_layout
 
 \begin_deeper
@@ -815,6 +821,8 @@ Level of detail in command line output.
 Wait until the following massage appears and press 
 \series bold
 OK
+\series default
+.
 \end_layout
 
 \begin_deeper

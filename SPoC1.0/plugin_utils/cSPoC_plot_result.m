@@ -1,4 +1,4 @@
-% cSPoC_plot_result() - plot 
+% cSPoC_plot_result() - plot cSPoC results using eegplot().
 %
 % Usage:
 %   >>  cSPoC_plot_result(EEG);
@@ -6,9 +6,10 @@
 % Inputs:
 %   INEEG   - cSPoC_plot_result
 %
-% See also: pop_cspoc(), cspoc()
+% See also: pop_cspoc(), cspoc(), eegplot()
 %
-% Copyright (C) 2014 Idai Guertel
+% Copyright (C) 2015 Idai Guertel. Adapted from: Arnaud Delorme, Scott
+% Makeig
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -31,6 +32,7 @@ uilist = { { 'Style', 'text', 'string', 'component set number:' }, ...
          { 'Style', 'popupmenu', 'string', options } };
      
 res = inputgui( 'uilist', uilist, 'geometry', {[3 1] [] []}, 'title', 'cSPoC_plot_result()', 'helpcom', 'pophelp(''cSPoC_plot_result'');');
+if length(res) == 0 return; end;
 
 dim = size(ALLEEG(1).data);
 dim(1) = length(ALLEEG);
